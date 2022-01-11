@@ -1,0 +1,2 @@
+# interactive mode
+docker run --rm -it --name logstash -v ${PWD}/logstash/config:/usr/share/logstash/config -v ${PWD}/logstash/pipeline:/usr/share/logstash/pipeline logstash:7.16.2 logstash
