@@ -2,21 +2,61 @@ version: '3.7'
 
 services:
 
-  elasticsearch:
+  es01:
     image: elasticsearch:7.16.2
-    volumes:
-      - ./server/es/data:/usr/share/elasticsearch/data
-      - ./plugins:/usr/share/elasticsearch/test
+    container_name: es01
     environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - node.name=es01 
+      - cluster.name=es-docker-cluster 
+      - discovery.seed_hosts=es02,es03 
+      - cluster.initial_master_nodes=es01,es02,es03 
+      - bootstrap.memory_lock=true 
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
         hard: -1
+    volumes:
+      - ./data01:/usr/share/elasticsearch/data
+    #   - ./plugins:/usr/share/elasticsearch/test
     ports:
       - "9200:9200"
+
+  es02:
+    image: elasticsearch:7.16.2
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster 
+      - discovery.seed_hosts=es01,es03 
+      - cluster.initial_master_nodes=es01,es02,es03 
+      - bootstrap.memory_lock=true 
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data02:/usr/share/elasticsearch/data
+    #   - ./plugins:/usr/share/elasticsearch/test
+
+  es03:
+    image: elasticsearch:7.16.2
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster 
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03 
+      - bootstrap.memory_lock=true 
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./data03:/usr/share/elasticsearch/data
+    #   - ./plugins:/usr/share/elasticsearch/test
 
   # kibana:
   #   image: kibana:7.16.2
@@ -25,8 +65,8 @@ services:
   #   ports:
   #     - "5601:5601"
 
-  logstash:
-    image: logstash:7.16.2
-    volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.conf
-      - ./logstash/pipeline/logstash.yml:/usr/share/logstash/pipeline/logstash.conf
+  # logstash:
+  #   image: logstash:7.16.2
+  #   volumes:
+  #     - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.conf
+  #     - ./logstash/pipeline/logstash.yml:/usr/share/logstash/pipeline/logstash.conf
